@@ -22,25 +22,25 @@ int rook_7_3[7][7] = {
 };
 
 int rook_8_4[8][8] = {
-    {4, 2, 2, 2, 2, 2, 5, 4},
+    {5, 2, 2, 2, 2, 2, 5, 5},
     {5, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 5},
-    {4, 5, 2, 2, 2, 2, 2, 4}
+    {5, 5, 2, 2, 2, 2, 2, 5}
 };
 
 int rook_8_2[8][8] = {
-    {4, 2, 2, 2, 2, 5, 5, 4},
+    {5, 2, 2, 2, 2, 5, 5, 5},
     {5, 0, 0, 0, 0, 0, 0, 2},
     {5, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 2},
     {2, 0, 0, 0, 0, 0, 0, 5},
     {2, 0, 0, 0, 0, 0, 0, 5},
-    {4, 5, 5, 2, 2, 2, 2, 4}
+    {5, 5, 5, 2, 2, 2, 2, 5}
 };
 
 int evaluation(const Board& b)
@@ -71,8 +71,8 @@ int evaluation(const Board& b)
     if(b.data.w_bishop!=DEAD)
     { 
         if(b.data.board_type==SEVEN_THREE) eval += 40;
-        if(b.data.board_type==EIGHT_FOUR) eval += 30;
-        if(b.data.board_type==EIGHT_TWO) eval += 40;
+        if(b.data.board_type==EIGHT_FOUR) eval += 40;
+        if(b.data.board_type==EIGHT_TWO) eval += 35;
     }
     if(b.data.w_knight_1!=DEAD) eval += 40;
     if(b.data.w_knight_2!=DEAD) eval += 40;
@@ -181,8 +181,8 @@ int evaluation(const Board& b)
     if(b.data.b_bishop!=DEAD)
     {
         if(b.data.board_type==SEVEN_THREE) eval -= 40;
-        if(b.data.board_type==EIGHT_FOUR) eval -= 30;
-        if(b.data.board_type==EIGHT_TWO) eval -= 40;
+        if(b.data.board_type==EIGHT_FOUR) eval -= 40;
+        if(b.data.board_type==EIGHT_TWO) eval -= 35;
     }
     if(b.data.b_knight_1!=DEAD) eval -= 40;
     if(b.data.b_knight_2!=DEAD) eval -= 40;
@@ -350,7 +350,9 @@ std::pair<U16,int> alpha_beta(const Board& b,int depth,int alpha,int beta,int ma
         ordering(moves,b);
         U16 move = moves[0];
 
-        int sz = (7*moves.size())/10;
+        int sz = moves.size();
+        // int sz = (7*moves.size())/10;
+        // if(b.data.board_type == EIGHT_FOUR) sz = (5*moves.size())/10;
         for(int i=0;i<std::max(1,sz);i++)
         {
             if(std::chrono::high_resolution_clock::now()-search_start>time_limit) break;
@@ -388,7 +390,9 @@ std::pair<U16,int> alpha_beta(const Board& b,int depth,int alpha,int beta,int ma
         ordering(moves,b);
         U16 move = moves[0];
 
-        int sz = (7*moves.size())/10;
+        int sz = moves.size();
+        // int sz = (7*moves.size())/10;
+        // if(b.data.board_type == EIGHT_FOUR) sz = (5*moves.size())/10;
         for(int i=0;i<std::max(1,sz);i++)
         {
             if(std::chrono::high_resolution_clock::now()-search_start>time_limit) break;
@@ -429,7 +433,7 @@ void Engine::find_best_move(const Board& b) {
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    for(int depth = 2;true;depth++)
+    for(int depth = 2;depth<21;depth++)
     {
         auto search_start = std::chrono::high_resolution_clock::now();
 
@@ -441,7 +445,7 @@ void Engine::find_best_move(const Board& b) {
             this->best_move = p.first;
         }
         else if(b.data.board_type==EIGHT_FOUR)
-        {
+        {   
             auto p = alpha_beta(b,0,INT_MIN,INT_MAX,depth,this,pos,search_start,time_limit_8_4);
             auto current_time = std::chrono::high_resolution_clock::now()-start_time;
             if(current_time>time_limit_8_4) break;
