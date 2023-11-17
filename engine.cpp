@@ -427,9 +427,20 @@ void Engine::find_best_move(const Board& b) {
 
     gpos.insert(all_boards_to_str(b));
     std::multiset<std::string> pos;
-    std::chrono::duration<double, std::milli> time_limit_7_3(2000.0);
-    std::chrono::duration<double, std::milli> time_limit_8_4(3000.0);
-    std::chrono::duration<double, std::milli> time_limit_8_2(4000.0);
+
+    auto moveset = b.get_legal_moves();
+    if (moveset.size() == 0) this->best_move = 0;
+    else {
+        std::vector<U16> moves;
+        std::sample(
+            moveset.begin(),
+            moveset.end(),
+            std::back_inserter(moves),
+            1,
+            std::mt19937{std::random_device{}()}
+        );
+        this->best_move = moves[0];
+    }
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -439,6 +450,10 @@ void Engine::find_best_move(const Board& b) {
 
         if(b.data.board_type==SEVEN_THREE)
         {
+            std::chrono::duration<double, std::milli> time_limit_7_3(2000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(30000.0)) time_limit_7_3 = std::chrono::duration<double, std::milli>(1000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(5000.0)) time_limit_7_3 = std::chrono::duration<double, std::milli>(200.0);
+
             auto p = alpha_beta(b,0,INT_MIN,INT_MAX,depth,this,pos,search_start,time_limit_7_3);
             auto current_time = std::chrono::high_resolution_clock::now()-start_time;
             if(current_time>time_limit_7_3) break;
@@ -446,6 +461,11 @@ void Engine::find_best_move(const Board& b) {
         }
         else if(b.data.board_type==EIGHT_FOUR)
         {   
+            std::chrono::duration<double, std::milli> time_limit_8_4(3000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(90000.0)) time_limit_8_4 = std::chrono::duration<double, std::milli>(2000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(30000.0)) time_limit_8_4 = std::chrono::duration<double, std::milli>(1000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(5000.0)) time_limit_8_4 = std::chrono::duration<double, std::milli>(200.0);
+
             auto p = alpha_beta(b,0,INT_MIN,INT_MAX,depth,this,pos,search_start,time_limit_8_4);
             auto current_time = std::chrono::high_resolution_clock::now()-start_time;
             if(current_time>time_limit_8_4) break;
@@ -453,6 +473,12 @@ void Engine::find_best_move(const Board& b) {
         }
         else
         {
+            std::chrono::duration<double, std::milli> time_limit_8_2(4000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(150000.0)) time_limit_8_2 = std::chrono::duration<double, std::milli>(3000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(90000.0)) time_limit_8_2 = std::chrono::duration<double, std::milli>(2000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(30000.0)) time_limit_8_2 = std::chrono::duration<double, std::milli>(1000.0);
+            if(time_left < std::chrono::duration<double, std::milli>(5000.0)) time_limit_8_2 = std::chrono::duration<double, std::milli>(200.0);
+
             auto p = alpha_beta(b,0,INT_MIN,INT_MAX,depth,this,pos,search_start,time_limit_8_2);
             auto current_time = std::chrono::high_resolution_clock::now()-start_time;
             if(current_time>time_limit_8_2) break;
